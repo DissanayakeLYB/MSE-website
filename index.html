@@ -3,62 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSE Department - University of Moratuwa</title>
+    <title>MSE | Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/pages/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav-container">
-            <a href="/" class="nav-logo">
-                <img src="assets/images/MSE_Logo.png" alt="MSE Logo">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top bg-white">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="./src/images/MSE_Logo.png" alt="MSE Logo" class="logo">
             </a>
-
-            <button class="nav-toggle" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <div class="navbar-collapse">
-                <ul class="nav-links">
-                    <li><a href="/" class="active">Home</a></li>
-                    <li class="dropdown">
-                        <a href="/pages/about.html">About Us</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            About
+                        </a>
                         <ul class="dropdown-menu">
-                            <li><a href="/pages/about/what-is-mse.html">What is MSE?</a></li>
-                            <li><a href="/pages/about/staff.html">Our Staff</a></li>
+                            <li><a class="dropdown-item" href="./pages/about/what-is-mse.html">What is MSE?</a></li>
+                            <li><a class="dropdown-item" href="./pages/about/staff.html">Staff</a></li>
                         </ul>
                     </li>
-                    <!-- More navigation items -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Facilities
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="./pages/facilities/heat-treatment-lab.html">Heat Treatment Lab</a></li>
+                            <li><a class="dropdown-item" href="./pages/facilities/microscopic-lab.html">Microscopic Lab</a></li>
+                            <li><a class="dropdown-item" href="./pages/facilities/polymer-lab.html">Polymer Lab</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            News & Events
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="./pages/news-events/latest-news.html">Latest News</a></li>
+                            <li><a class="dropdown-item" href="./pages/news-events/upcoming-events.html">Upcoming Events</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./pages/research/research.html">Research</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./pages/SOMES/SOMES.html">SOMES</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./pages/contact/contact.html">Contact</a>
+                    </li>
                 </ul>
             </div>
-        </nav>
-    </header>
-
-    <main>
-        <div class="home-container">
-            <!-- Hero Section -->
-            <section class="hero-section">
-                <div id="heroCarousel" class="carousel">
-                    <!-- Carousel content -->
-                </div>
-            </section>
-
-            <!-- Welcome Section -->
-            <section class="welcome-section">
-                <!-- Welcome content -->
-            </section>
-
-            <!-- Other sections -->
         </div>
-    </main>
+    </nav>
 
-    <footer>
-        <!-- Footer content -->
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-slider">
+            <div class="hero-slide">
+                <img src="https://placehold.co/1920x1080" alt="MSE Department">
+                <div class="hero-content">
+                    <h1 data-aos="fade-up">Welcome to Sri Lanka's only</h1>
+                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
+                        DEPARTMENT OF MATERIALS SCIENCE AND ENGINEERING
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3" data-aos="fade-up">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3 class="counter">200+</h3>
+                        <p>Students</p>
+                    </div>
+                </div>
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-card">
+                        <i class="fas fa-microscope"></i>
+                        <h3 class="counter">3</h3>
+                        <p>Research Labs</p>
+                    </div>
+                </div>
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-card">
+                        <i class="fas fa-flask"></i>
+                        <h3 class="counter">50+</h3>
+                        <p>Research Projects</p>
+                    </div>
+                </div>
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-card">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3 class="counter">100%</h3>
+                        <p>Employment Rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Areas -->
+    <section class="research-areas">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Our Research Areas</h2>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up">
+                    <div class="research-card">
+                        <img src="https://placehold.co/400x300" alt="Nanomaterials">
+                        <div class="research-content">
+                            <h3>Nanomaterials</h3>
+                            <p>Exploring the frontier of materials at the nanoscale.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="research-card">
+                        <img src="https://placehold.co/400x300" alt="Smart Materials">
+                        <div class="research-content">
+                            <h3>Smart Materials</h3>
+                            <p>Developing materials that respond to environmental changes.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="research-card">
+                        <img src="https://placehold.co/400x300" alt="Sustainable Materials">
+                        <div class="research-content">
+                            <h3>Sustainable Materials</h3>
+                            <p>Creating eco-friendly materials for a better future.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="why-choose-us">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Why Choose MSE at UoM?</h2>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <h3>Excellence in Education</h3>
+                        <p>Internationally recognized curriculum with state-of-the-art facilities and experienced faculty.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <h3>Industry Connections</h3>
+                        <p>Strong partnerships with leading industries ensuring practical exposure and career opportunities.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <h3>Research Focus</h3>
+                        <p>Cutting-edge research opportunities in emerging areas of materials science.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Global Recognition</h3>
+                        <p>International collaborations and exchange programs with renowned institutions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Publications -->
+    <section class="publications-section bg-light">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Recent Publications</h2>
+            <div class="row g-4">
+                <div class="col-lg-4" data-aos="fade-up">
+                    <div class="publication-card">
+                        <div class="publication-meta">
+                            <span class="pub-date">March 2024</span>
+                            <span class="pub-journal">Advanced Materials</span>
+                        </div>
+                        <h3>Novel Approach to Sustainable Material Development</h3>
+                        <p class="authors">Dr. Smith, Dr. Johnson, et al.</p>
+                        <a href="#" class="btn btn-outline-primary">Read More</a>
+                    </div>
+                </div>
+                <!-- Add more publication cards -->
+            </div>
+            <div class="text-center mt-5">
+                <a href="pages/research/publications.html" class="btn btn-primary">View All Publications</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Events -->
+    <section class="events-section">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Upcoming Events</h2>
+            <div class="row g-4">
+                <div class="col-lg-6" data-aos="fade-up">
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="day">15</span>
+                            <span class="month">APR</span>
+                        </div>
+                        <div class="event-content">
+                            <h3>Materials Science Symposium 2024</h3>
+                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> Main Auditorium</p>
+                            <p class="event-time"><i class="far fa-clock"></i> 9:00 AM - 5:00 PM</p>
+                            <a href="#" class="btn btn-outline-primary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more event cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Student Success Stories -->
+    <section class="success-stories bg-light">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Student Success Stories</h2>
+            <div class="row g-4">
+                <div class="col-lg-4" data-aos="fade-up">
+                    <div class="story-card">
+                        <img src="https://placehold.co/400x300" alt="Student Success Story" class="story-image">
+                        <div class="story-content">
+                            <h3>Sarah Johnson</h3>
+                            <p class="designation">Research Scientist at Tesla</p>
+                            <p class="story-text">"The MSE program provided me with the perfect foundation for my career in advanced materials research."</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more success story cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest News -->
+    <section class="news-section">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Latest News</h2>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up">
+                    <div class="news-card">
+                        <div class="news-image">
+                            <img src="https://placehold.co/400x300" alt="News 1">
+                        </div>
+                        <div class="news-content">
+                            <div class="news-date">March 15, 2024</div>
+                            <h3>New Research Grant Awarded</h3>
+                            <p>Department receives major funding for advanced materials research...</p>
+                            <a href="#" class="btn btn-primary mt-3">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more news cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h3>About MSE</h3>
+                    <p class="mb-4">The Department of Materials Science and Engineering at University of Moratuwa is dedicated to advancing the understanding and development of materials that shape our world.</p>
+                    <ul class="footer-contact-info">
+                        <li>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                Department of Materials Science and Engineering<br>
+                                University of Moratuwa<br>
+                                Katubedda, Moratuwa 10400
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <div>+94 123 456 789</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <div>mse@uom.lk</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Research Areas</a></li>
+                        <li><a href="#">Publications</a></li>
+                        <li><a href="#">Our Staff</a></li>
+                        <li><a href="#">News & Events</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h3>Research Areas</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Nanomaterials</a></li>
+                        <li><a href="#">Smart Materials</a></li>
+                        <li><a href="#">Sustainable Materials</a></li>
+                        <li><a href="#">Biomaterials</a></li>
+                        <li><a href="#">Advanced Ceramics</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h3>Newsletter</h3>
+                    <p class="mb-3">Subscribe to our newsletter for the latest updates and news.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Enter your email">
+                        <button type="submit">Subscribe</button>
+                    </form>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/SocietyofMaterialsStudents" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.linkedin.com/company/society-of-materials-engineering-students/posts/?feedView=all" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.youtube.com/@departmentofmaterialsscien5838" target="_blank"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; <script>document.write(new Date().getFullYear())</script> Department of Materials Science and Engineering, University of Moratuwa. All rights reserved.</p>
+            </div>
+        </div>
     </footer>
 
-    <script src="js/main.js"></script>
-    <script src="js/header.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
 </body>
 </html> 

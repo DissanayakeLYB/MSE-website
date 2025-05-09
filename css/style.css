@@ -1157,4 +1157,98 @@
       width: 100%;
       height: auto;
   }
+
+  /* Video Card Styles */
+  .video-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+    /*height: 400px;*/
+  }
   
+  .video-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Make video responsive and 100% width */
+  .video-card video {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: #000; /* fallback background */
+  }
+  
+  /* Content below the video */
+  .video-content {
+    padding: 1.5rem;
+    color: var(--text-color);
+    background: linear-gradient(to top, rgba(0,0,0,0.05), transparent);
+    flex-grow: 1;
+  }
+  
+  .video-content h3 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .video-content p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+  }
+
+/* vismis card styles */
+.vismis-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  height: 400px;
+  width: 100%;
+}
+
+.vismis-card:hover {
+  transform: translateY(-5px);
+}
+
+/* vismis card overlay */
+.vismis-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(27, 27, 27, 0.7); /* Blue overlay with 70% opacity */
+  z-index: 1; /* Place the overlay behind the text */
+}
+
+.vismis-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* vismis card content styles */
+.vismis-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  color: var(--white);
+  z-index: 2;
+}
+
+.vismis-content h3 {
+  color: white;
+  font-weight: 600;
+}

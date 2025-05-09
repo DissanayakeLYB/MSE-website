@@ -17,86 +17,69 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Navigation Bar (fixed to top, responsive with dropdowns) -->
-<nav class="navbar navbar-expand-lg fixed-top bg-white">
-    <div class="container">
-        <!-- Brand logo linking to home page -->
-        <a class="navbar-brand" href="../index.html">
-            <img src="../src/images/MSE_Logo.png" alt="MSE Logo" class="logo">
-        </a>
-        <!-- Toggler for mobile navigation -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Navigation links and dropdown menus -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <!-- About us Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        About us
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="./careers.html">Career Paths</a></li>
-                        <li><a class="dropdown-item" href="./jobs.html">Job Opportunities</a></li>
-                        <li><a class="dropdown-item" href="./staff.html">Staff</a></li>
-                    </ul>
-                </li>
-                <!-- Research & Impact Dropdown with submenus -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        Research & Impact
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li class="dropdown-submenu">
-                            <a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                Research Facilities
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="../facilities/serv-request.html">Analytical Service Request</a></li>
-                                <li><a class="dropdown-item" href="../facilities/heat-treatment-lab.html">Heat Treatment Laboratory</a></li>
-                                <li><a class="dropdown-item" href="../facilities/microscopic-lab.html">Microscopic Laboratory</a></li>
-                                <li><a class="dropdown-item" href="../facilities/polymer-lab.html">Polymer Laboratory</a></li>
-                                <li><a class="dropdown-item" href="../facilities/ceramic-lab.html">Ceramic Laboratory</a></li>
-                            </ul>
-                        </li>
-                        <li><a class="dropdown-item" href="#">Research Projects</a></li>
-                        <li><a class="dropdown-item" href="#">Project Proposal Submissions</a></li>
-                    </ul>
-                </li>
-                <!-- News & Events Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        News & Events
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="../news-events/latest-news.html">Latest News</a></li>
-                        <li><a class="dropdown-item" href="../news-events/upcoming-events.html">Upcoming Events</a></li>
-                    </ul>
-                </li>
-                <!-- Education Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        Education
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="../education/ug.html">Undergraduate Program</a></li>
-                        <li><a class="dropdown-item" href="../education/pg.html">Postgraduate Program</a></li>
-                    </ul>
-                </li>
-                <!-- SOMES (Student society) -->
-                <li class="nav-item">
-                    <a class="nav-link" href="../SOMES/SOMES.html">SOMES</a>
-                </li>
-                <!-- Contact Page Link -->
-                <li class="nav-item">
-                    <a class="nav-link" href="../contact/contact.html">Contact</a>
-                </li>
-            </ul>
+    <!-- Navigation Bar (fixed to top, uses Bootstrap classes) -->
+    <nav class="navbar navbar-expand-lg fixed-top bg-white">
+        <div class="container">
+            <!-- Brand logo linking to home page -->
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../../src/images/MSE_Logo.png" alt="MSE Logo" class="logo">
+            </a>
+            <!-- Toggler for mobile view -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Navigation links (with dropdowns for sections) -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- About Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            About
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="../about/what-is-mse.html">What is MSE?</a></li>
+                            <li><a class="dropdown-item" href="../about/careers.html">Career Paths</a></li>
+                            <li><a class="dropdown-item" href="../about/jobs.html">Job Opportunities</a></li>
+                            <li><a class="dropdown-item" href="../about/staff.html">Staff</a></li>
+                        </ul>
+                    </li>
+                    <!-- Facilities Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Facilities
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="../facilities/heat-treatment-lab.html">Heat Treatment Laboratory</a></li>
+                            <li><a class="dropdown-item" href="../facilities/microscopic-lab.html">Microscopic Laboratory</a></li>
+                            <li><a class="dropdown-item" href="../facilities/polymer-lab.html">Polymer Laboratory</a></li>
+                            <li><a class="dropdown-item" href="../facilities/ceramic-lab.html">Ceramic Laboratory</a></li>
+                        </ul>
+                    </li>
+                    <!-- News & Events Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            News & Events
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="../news-events/latest-news.html">Latest News</a></li>
+                            <li><a class="dropdown-item" href="../news-events/upcoming-events.html">Upcoming Events</a></li>
+                        </ul>
+                    </li>
+                    <!-- Single navigation links -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="../research/research.html">Education</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../SOMES/SOMES.html">SOMES</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../contact/contact.html">Contact</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Page Header: Title Section -->
     <header class="page-header">

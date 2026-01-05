@@ -36,9 +36,6 @@
         if (elmt && elmt.parentNode) elmt.parentNode.removeChild(elmt);
       });
 
-      // Remove by element (header tag)
-      document.querySelector("div.node--content > header")?.remove();
-
       // Remove by class: split multi-class entry into separate class checks
       const classesToRemove = [
         "to-top",
@@ -233,8 +230,7 @@
       const logoLink = document.createElement("a");
       logoLink.href = "/materials/test";
       const logo = document.createElement("img");
-      logo.src =
-        "https://uom.lk/sites/default/files/materials/images/materials-log1_0.png";
+      logo.src = "/sites/default/files/materials/images/materials-log1_0.png";
       logo.alt = "Department of Material Science and Engineering";
       Object.assign(logo.style, { width: "100px", cursor: "pointer" });
       logoLink.appendChild(logo);
@@ -856,19 +852,9 @@
   }
   h2 {
     font-size: var(--h2);
-    margin-top: 0;
+    margin-top: 1rem;
     position: relative;
-    padding-bottom: 1rem;
-  }
-  h2::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 80px;
-    height: 4px;
-    background: var(--gradient-1);
-    border-radius: 2px;
+    padding-bottom: 0.5rem;
   }
   h3 {
     font-size: var(--h3);
@@ -910,36 +896,10 @@
     color: var(--brand);
   }
 
-  .card a,
-  .news-item a {
-    text-decoration: none;
-  }
-
-  .card a:hover,
-  .news-item a:hover {
-    text-decoration: none;
-  }
-
-  section a:not(.btn):not(.card a):not(.news-item a) {
-    font-weight: 600;
-    border-bottom: 2px solid var(--accent-light);
-  }
-
-  section a:not(.btn):not(.card a):not(.news-item a):hover {
-    border-bottom-color: var(--accent);
-  }
-
-            /* ===========================
+  /* ===========================
        LAYOUT & CONTAINERS
        =========================== */
   .container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 0;
-  }
-
-  .container-full {
     width: 100%;
     max-width: 100%;
     margin: 0;
@@ -947,99 +907,34 @@
   }
 
   .section {
-    padding: 1rem;
-    width: 85%;
+    padding: 1.5rem 4rem;
+    width: 100%;
+  }
+
+  .section .content-wrapper {
+    max-width: 1200px;
     margin: 0 auto;
   }
 
-  .section-alt {
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-1);
-    padding: 2.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    transition: var(--transition);
-    position: relative;
-  }
-
-  .section-alt::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-1);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-
-  .section-alt:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-3);
-  }
-
-  .section-alt:hover::after {
-    transform: scaleX(1);
-  }
-
-  .vision-mission-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-  }
-
   /* ===========================
-       HEADER & NAVIGATION
+       PAGE HERO SECTION
        =========================== */
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 1200;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 2rem;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
-    margin: 0 !important;
-  }
-
-  .logo {
-    width: 120px;
-    height: auto;
-    transition: var(--transition);
-  }
-
-  .logo:hover {
-    transform: scale(1.05);
-  }
-
-  /* ===========================
-       HERO SECTION
-       =========================== */
-  .hero-section {
-    margin-bottom: 3rem !important;
-  }
-  .hero {
+  .page-hero {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 1.5rem;
     align-items: center;
     justify-content: center;
     text-align: center;
     padding: 2rem;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
     position: relative;
     background: linear-gradient(180deg, #0a0a1f 0%, #1a1a3e 50%, #2a2a5e 100%);
-    margin: 0 !important;
     overflow: hidden;
+    margin: 0 !important;
   }
 
-  .hero::before {
+  .page-hero::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -1056,33 +951,49 @@
     z-index: 0;
   }
 
-  .hero-content {
+  .page-hero-content {
     max-width: 1000px;
     animation: fadeInUp 0.8s ease-out;
     position: relative;
     z-index: 2;
   }
 
-  .hero h1 {
+  .page-hero h1 {
     color: white;
     background: linear-gradient(135deg, #ffffff 0%, #e0e0ff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-shadow: none;
-    margin-bottom: 1.5rem;
-    font-size: clamp(2.8rem, 7vw, 4.5rem);
+    margin-bottom: 1rem;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
     line-height: 1.1;
   }
 
-  .hero .lead {
+  .page-hero .lead {
     color: rgba(255, 255, 255, 0.85);
-    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-    margin-bottom: 3rem;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    margin-bottom: 0;
     font-weight: 400;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .kicker {
+    display: inline-block;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    background: transparent;
+    letter-spacing: 0.15rem;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+    padding: 0;
+    border-radius: 0;
+    margin-bottom: 1rem;
+    box-shadow: none;
+    border-bottom: 2px solid rgba(227, 66, 52, 0.5);
+    padding-bottom: 0.5rem;
   }
 
   @keyframes fadeInUp {
@@ -1096,333 +1007,138 @@
     }
   }
 
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
-  }
-
-  .hero-image {
-    display: none;
-  }
-
-  .kicker {
-    display: inline-block;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.7);
-    background: transparent;
-    letter-spacing: 0.15rem;
-    font-weight: 600;
-    font-size: clamp(0.75rem, 1.8vw, 0.95rem);
-    padding: 0;
-    border-radius: 0;
-    margin-bottom: 1.5rem;
-    box-shadow: none;
-    border-bottom: 2px solid rgba(227, 66, 52, 0.5);
-    padding-bottom: 0.5rem;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem 2.5rem;
-    border-radius: 50px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: var(--transition);
-    min-height: 48px;
-    font-size: var(--body);
-    border: none;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    transition: left 0.4s ease;
-  }
-
-  .btn:hover::before {
-    left: 100%;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent) 0%, #ff5544 100%);
-    color: white;
-    box-shadow: 0 10px 40px rgba(227, 66, 52, 0.3);
-    border: 2px solid transparent;
-  }
-
-  .btn-primary:hover,
-  .btn-primary:focus {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 50px rgba(227, 66, 52, 0.4);
-    text-decoration: none;
-    color: white;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
   /* ===========================
-       GRID LAYOUTS
+       CONTENT GRID & CARDS
        =========================== */
-  .grid {
+  .content-grid {
     display: grid;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
   }
 
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-
-  /* ===========================
-       CARD COMPONENTS
-       =========================== */
-  .card {
+  .content-card {
     background: var(--card-bg);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow-1);
-    transition: var(--transition);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    position: relative;
-  }
-
-  .card::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-1);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-3);
-  }
-
-  .card:hover::after {
-    transform: scaleX(1);
-  }
-
-  .card-img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    transition: var(--transition);
-  }
-
-  .card:hover .card-img {
-    transform: scale(1.08);
-  }
-
-  .card-content {
-    padding: 2rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .card h3 {
-    margin-bottom: 1rem;
-    transition: var(--transition);
-  }
-
-  .card:hover h3 {
-    color: var(--accent);
-  }
-
-  .card p {
-    margin-bottom: 1rem;
-    flex-grow: 1;
-    line-height: 1.7;
-  }
-
-  /* ===========================
-       NEWS COMPONENTS
-       =========================== */
-  .news-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-
-  .news-item {
-    display: flex;
-    gap: 1.5rem;
-    padding: 1.75rem;
-    background: var(--card-bg);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-1);
-    transition: var(--transition);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .news-item::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--gradient-1);
-    transform: scaleY(0);
-    transition: transform 0.3s ease;
-  }
-
-  .news-item:hover {
-    box-shadow: var(--shadow-2);
-    transform: translateX(8px);
-  }
-
-  .news-item:hover::before {
-    transform: scaleY(1);
-  }
-
-  .news-thumb {
-    width: 120px;
-    height: 120px;
-    flex-shrink: 0;
     border-radius: var(--radius-sm);
     overflow: hidden;
     box-shadow: var(--shadow-1);
-  }
-
-  .news-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     transition: var(--transition);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
   }
 
-  .news-item:hover .news-thumb img {
-    transform: scale(1.1);
+  @media (min-width: 600px) {
+    .content-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-2);
+    }
   }
 
-  .news-content {
+  .content-card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+
+  .content-card h3 {
+    color: var(--accent);
+    font-size: var(--h4);
+    margin-bottom: 0.75rem;
+    margin-top: 0;
+  }
+
+  .content-card p {
+    color: var(--muted);
+    font-size: var(--body);
+    margin-bottom: 0;
+  }
+
+  .card-content {
+    padding: 1.5rem;
     flex-grow: 1;
   }
 
-  .news-content h4 {
-    margin-bottom: 0.75rem;
-    transition: var(--transition);
-  }
-
-  .news-item:hover .news-content h4 {
-    color: var(--accent);
-  }
-
   /* ===========================
-       LIST STYLES
+       FOCUS AREAS SECTION
        =========================== */
-  ul {
-    padding-left: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  li {
-    margin-bottom: 0.75rem;
-    position: relative;
-    padding-left: 0.5rem;
-  }
-
-  .section-alt ul li::marker {
-    color: var(--accent);
-    font-weight: bold;
-  }
-
-  /* ===========================
-       BADGE & TAG STYLES
-       =========================== */
-  .badge {
-    display: inline-block;
-    padding: 0.35rem 0.85rem;
-    background: var(--accent-light);
-    color: var(--accent);
-    border-radius: 50px;
-    font-size: var(--small);
-    font-weight: 700;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .vision-mission-container {
+  .focus-areas {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 2rem auto;
   }
 
-  @media (min-width: 768px) {
-    .vision-mission-container {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-    }
-  }
-  .image-text-section {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    align-items: center;
-    margin: 2rem 0;
-  }
-
-  .image-text-section.reverse {
-    flex-direction: column-reverse;
-  }
-
-  .section-image {
-    flex: 1;
-    width: 100%;
-    max-width: 600px;
-  }
-
-  .section-image img {
-    width: 100%;
-    height: auto;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-2);
+  .focus-item {
+    padding: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      rgba(227, 66, 52, 0.08) 0%,
+      rgba(227, 66, 52, 0.04) 100%
+    );
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
     transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
   }
 
-  .section-image img:hover {
-    transform: scale(1.02);
-    box-shadow: var(--shadow-3);
+  .focus-item:hover {
+    box-shadow: var(--shadow-1);
+    transform: translateX(4px);
   }
 
-  .section-text {
-    flex: 1;
-    max-width: 600px;
+  .focus-item p {
+    margin: 0;
+    color: var(--brand);
+    font-weight: 600;
+    font-size: var(--body);
   }
 
-  .section-text h2 {
+  /* ===========================
+       CTA SECTION
+       =========================== */
+  .cta-section {
+    background: var(--gradient-1);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    margin: 2rem auto;
+    max-width: 1000px;
+  }
+
+  .cta-section h2 {
+    color: white;
     margin-top: 0;
+  }
+
+  .cta-section p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2rem;
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    background: white;
+    color: var(--brand);
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 6px;
+    transition: var(--transition);
+    font-size: var(--body);
+  }
+
+  .cta-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
 
   /* ===========================
@@ -1436,13 +1152,9 @@
     color: rgba(255, 255, 255, 0.8);
     border-top: 3px solid var(--accent);
     margin-top: auto;
-    position: relative;
-    overflow: hidden;
   }
 
   footer[data-dmse-minimal="true"] p {
-    position: relative;
-    z-index: 1;
     color: rgba(255, 255, 255, 0.9);
   }
 
@@ -1466,53 +1178,6 @@
   }
 
   /* ===========================
-       STATS SECTION
-       =========================== */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-top: 3rem;
-  }
-
-  .stat-card {
-    background: var(--card-bg);
-    padding: 2rem;
-    border-radius: var(--radius);
-    text-align: center;
-    box-shadow: var(--shadow-1);
-    transition: var(--transition);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-  }
-
-  .stat-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-2);
-  }
-
-  .stat-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    filter: grayscale(20%);
-  }
-
-  .stat-number {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: var(--gradient-1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-label {
-    font-size: var(--body);
-    color: var(--muted);
-    font-weight: 600;
-  }
-
-  /* ===========================
        ACCESSIBILITY
        =========================== */
   .sr-only {
@@ -1533,463 +1198,147 @@
     outline-offset: 2px;
   }
 
-  /* ===========================
-       MEDIA QUERIES
-       =========================== */
-  /* Tablet */
   @media (min-width: 768px) {
-    .container {
-      padding: 0;
-    }
-
     .section {
-      padding: 1.5rem;
+      padding: 2rem 3rem;
     }
 
-    .vision-mission-container {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-    }
-
-    .hero {
-      flex-direction: row;
-      text-align: center;
-      gap: 4rem;
-      padding: 3rem;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .image-text-section {
-      flex-direction: row;
-      gap: 4rem;
-    }
-
-    .image-text-section.reverse {
-      flex-direction: row-reverse;
-    }
-
-    h2::after {
-      left: 0;
-    }
-
-    .hero-content {
-      flex: 1;
-    }
-
-    .hero-image {
-      flex: 1;
-      max-width: 450px;
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-    }
-
-    .news-item {
-      padding: 2rem;
-    }
-
-    .stats-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  /* Desktop */
-  @media (min-width: 1024px) {
-    .container {
-      padding: 0;
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2.5rem;
-    }
-
-    .news-item {
-      padding: 2rem;
-    }
-
-    .card-img {
-      height: 240px;
-    }
-  }
-
-  /* Large Desktop */
-  @media (min-width: 1200px) {
-    .hero-image {
-      max-width: 500px;
-    }
-
-    .grid-3 {
-      gap: 3rem;
+    .page-hero {
+      padding: 5rem 3rem;
     }
   }
 </style>
-<!-- Header will be injected by the script -->
 <main>
-  <!-- HERO SECTION -->
-  <section class="hero-section" id="home">
-    <div class="container-full">
-      <div class="hero">
-        <div class="hero-content">
-          <span class="kicker">University of Moratuwa</span>
-          <h1>Department of Materials Science and Engineering</h1>
-
-          <p class="lead">
-            Advancing innovation through cutting-edge materials research,
-            education, and industry collaboration
-          </p>
-          <a class="btn btn-primary" href="/materials/pograduate"
-            >Explore Programs</a
-          >
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- ABOUT SECTION -->
-
-  <section class="section" id="about">
-    <div class="container">
-      <h2>About the Department</h2>
+  <!-- PAGE HERO SECTION -->
+  <section class="page-hero" id="postgraduate">
+    <div class="page-hero-content">
+      <span class="kicker">Education Programs</span>
+      <h1>Postgraduate Programs</h1>
 
       <p class="lead">
-        The Department of Materials Science and Engineering provides
-        undergraduate and postgraduate education, research, advanced facilities
-        for materials characterisation, and active collaborations with industry
-        and global partners.
+        Advance your expertise with our MSc, PG Diploma, and PhD programs
+        designed for the next generation of materials science leaders.
       </p>
     </div>
   </section>
-  <!-- IMAGE-TEXT SECTIONS -->
 
-  <section class="section">
+  <!-- ABOUT POSTGRADUATES -->
+  <section class="section" id="about-postgraduates">
+    <div class="content-wrapper">
+      <h2>About Our Postgraduate Programs</h2>
+
+      <p>
+        The postgraduate programs at DMSE provide advanced education and
+        research opportunities in materials science and engineering. Our
+        programs are designed to meet industry demands and contribute to
+        cutting-edge research, preparing graduates for leadership roles in
+        academia, industry, and research institutions worldwide.
+      </p>
+    </div>
+  </section>
+
+  <!-- AVAILABLE PROGRAMS -->
+  <section class="section" id="available-programs">
     <div class="container">
-      <div class="image-text-section">
-        <div class="section-image">
+      <h2 class="text-center">Available Programs</h2>
+
+      <div class="content-grid">
+        <article class="content-card">
           <img
-            alt="Research Excellence"
-            loading="lazy"
-            src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800"
+            alt="M.Sc./PG Dip in Materials Science"
+            src="https://uom.lk/sites/default/files/materials/images/Materials_0.png"
           />
-        </div>
+          <div class="card-content">
+            <h3>
+              <a href="https://uom.lk/materials/mscpg-dip-materials-science"
+                >M.Sc./PG Dip in Materials Science</a
+              >
+            </h3>
+            <p>
+              The M.Sc. programme is designed to deepen the knowledge of
+              materials science for individuals with an engineering or physical
+              science background. It aims to meet industry demands and
+              contribute to the socio-economic development of the country.
+            </p>
+          </div>
+        </article>
 
-        <div class="section-text">
-          <h2>Research Excellence</h2>
-
-          <p class="lead">
-            Pioneering innovations in materials science and engineering
-          </p>
-
-          <p>
-            Our department conducts world-class research in advanced materials,
-            nanotechnology, biomaterials, and sustainable energy solutions. With
-            state-of-the-art facilities and expert faculty, we push the
-            boundaries of what's possible in materials science.
-          </p>
-
-          <p>
-            Our research impacts industries ranging from aerospace to
-            healthcare, contributing to technological advancement and societal
-            development.
-          </p>
-        </div>
+        <article class="content-card">
+          <img
+            alt="M.Sc./PG Dip in Nanotechnology"
+            src="https://uom.lk/sites/default/files/materials/images/Nano_0.png"
+          />
+          <div class="card-content">
+            <h3>
+              <a href="https://uom.lk/materials/mscpg-dip-nanotechnology"
+                >M.Sc./PG Dip in Nanotechnology</a
+              >
+            </h3>
+            <p>
+              The M.Sc. in Nanotechnology program at the University of Moratuwa
+              paves the way for your success in one of the most ground-breaking
+              fields of the modern era. Designed for science and engineering
+              graduates, this program provides the skills and knowledge needed
+              to thrive in high-tech industries on a global scale.
+            </p>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <!-- WHY CHOOSE DMSE -->
+  <section class="section" id="why-dmse">
     <div class="container">
-      <div class="image-text-section reverse">
-        <div class="section-image">
-          <img
-            alt="Industry Partnerships"
-            loading="lazy"
-            src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800"
-          />
+      <h2 class="text-center">Why Choose DMSE for Postgraduate Studies?</h2>
+
+      <div class="focus-areas">
+        <div class="focus-item">
+          <p>Laboratory Facilities</p>
         </div>
 
-        <div class="section-text">
-          <h2>Industry Partnerships</h2>
-
-          <p class="lead">
-            Bridging academia and industry for real-world impact
-          </p>
-
-          <p>
-            We collaborate with leading companies and organizations to solve
-            complex materials challenges. Our partnerships provide students with
-            practical experience and ensure our research addresses real-world
-            needs.
-          </p>
-
-          <p>
-            From materials testing to consultancy services, we support
-            industries in developing innovative solutions.
-          </p>
+        <div class="focus-item">
+          <p>Active Research Groups</p>
         </div>
+
+        <div class="focus-item">
+          <p>Industry &amp; Global Connections</p>
+        </div>
+      </div>
+
+      <div class="content-wrapper mt-2">
+        <p class="text-center">
+          Well-equipped labs and instrumentation for materials characterization,
+          processing, and testing. Engage with strong faculty research groups in
+          cutting-edge materials research. Benefit from collaborations,
+          internships, visiting lecturers, and partnerships with industry.
+        </p>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="image-text-section">
-        <div class="section-image">
-          <img
-            alt="Student Experience"
-            loading="lazy"
-            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800"
-          />
-        </div>
+  <!-- FUNDING & SCHOLARSHIPS -->
+  <section class="section" id="funding">
+    <div class="content-wrapper">
+      <h2 class="text-center">Funding, Scholarships &amp; Assistantships</h2>
 
-        <div class="section-text">
-          <h2>Exceptional Student Experience</h2>
-
-          <p class="lead">
-            Nurturing the next generation of materials scientists
-          </p>
-
-          <p>
-            Our students benefit from hands-on learning experiences,
-            cutting-edge laboratory facilities, and mentorship from
-            world-renowned faculty. We offer comprehensive undergraduate and
-            postgraduate programs designed to equip students with both
-            theoretical knowledge and practical skills.
-          </p>
-
-          <p>
-            Join a vibrant community of learners and innovators shaping the
-            future of materials science.
-          </p>
-        </div>
-      </div>
+      <p class="text-center">
+        DMSE offers financial support for postgraduate students, including
+        research assistantships, teaching assistantships, grants, and
+        scholarships. Opportunities available through industry partners and
+        national/international bodies.
+      </p>
     </div>
   </section>
-  <!-- VISION & MISSION SECTIONS -->
 
-  <section class="section">
-    <div class="container">
-      <h2>Our Vision &amp; Mission</h2>
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Take the Next Step in Your Academic Journey</h2>
 
-      <div class="vision-mission-container">
-        <section class="section-alt" id="vision">
-          <h3>Vision</h3>
-
-          <p>
-            Becoming a center of excellence in higher learning, research,
-            industrial consultancy and other relevant activities in Materials
-            Science and Engineering.
-          </p>
-        </section>
-
-        <section class="section-alt" id="mission">
-          <h3>Mission</h3>
-
-          <p>
-            To be a center of excellence in Materials Science &amp; Engineering
-            by providing opportunity:
-          </p>
-
-          <ul>
-            <li>
-              for undergraduates and postgraduates to acquire specialized
-              knowledge on the development and processing of engineering
-              materials
-            </li>
-            <li>
-              to conduct high-quality research to cater for national development
-            </li>
-            <li>
-              to provide consultancy services to the public and private sector
-            </li>
-          </ul>
-        </section>
-      </div>
-    </div>
-  </section>
-  <!-- EXPLORE SECTION -->
-
-  <section class="section" id="explore">
-    <div class="container">
-      <h2>Explore Our Department</h2>
-
-      <div class="grid grid-3">
-        <div class="card">
-          <img
-            alt="Undergraduate Programs"
-            class="card-img"
-            loading="lazy"
-            src="https://uom.lk/sites/default/files/materials/images/Class.png"
-          />
-          <div class="card-content">
-            <h3>
-              <a href="/materials/test-undergraduate">Undergraduate Programs</a>
-            </h3>
-
-            <p>
-              Bachelor of the Science of Engineering Honours in Materials
-              Science and Engineering.
-            </p>
-          </div>
-        </div>
-
-        <div class="card">
-          <img
-            alt="Postgraduate Programs"
-            class="card-img"
-            loading="lazy"
-            src="https://uom.lk/sites/default/files/materials/images/Postgraduate.png"
-          />
-          <div class="card-content">
-            <h3>
-              <a href="/materials/test-postgraduate">Postgraduate Programs</a>
-            </h3>
-
-            <p>PhD, MPhil, MSc by research and coursework.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <img
-            alt="Research &amp; Impact"
-            class="card-img"
-            loading="lazy"
-            src="https://uom.lk/sites/default/files/materials/images/Research%20and%20Impact.png"
-          />
-          <div class="card-content">
-            <h3>
-              <a href="/materials/test-impact-areas"
-                >Research &amp; Innovations</a
-              >
-            </h3>
-
-            <p>
-              Fields covering Metallurgy, Ceramics, Polymers, Composites,
-              Biomaterials, Nanomaterials, Energy materials, and more.
-            </p>
-          </div>
-        </div>
-
-        <div class="card">
-          <img
-            alt="Facilities &amp; Equipment"
-            class="card-img"
-            loading="lazy"
-            src="https://uom.lk/sites/default/files/materials/images/SEM.png"
-          />
-          <div class="card-content">
-            <h3>
-              <a href="/materials/test-facilities"
-                >Facilities &amp; Equipment</a
-              >
-            </h3>
-
-            <p>
-              World-class laboratories and testing facilities supporting
-              education, research and industry.
-            </p>
-          </div>
-        </div>
-
-        <div class="card">
-          <img
-            alt="Academic Staff"
-            class="card-img"
-            loading="lazy"
-            src="https://uom.lk/sites/default/files/materials/images/7.jpeg"
-          />
-          <div class="card-content">
-            <h3><a href="/materials/test-academic-staff">Academic Staff</a></h3>
-
-            <p>Highly qualified academic staff with wide range of expertise.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <img
-            alt="Consultancy &amp; Services"
-            class="card-img"
-            loading="lazy"
-            src="https://uom.lk/sites/default/files/materials/images/Consultancy_1.png"
-          />
-          <div class="card-content">
-            <h3>
-              <a href="/materials/test-consultancy"
-                >Consultancy &amp; Services</a
-              >
-            </h3>
-
-            <p>Expert advice, consultation services, and materials testing.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- NEWS & EVENTS SECTION -->
-
-  <section class="section" id="news">
-    <div class="container">
-      <h2>News &amp; Events</h2>
-
-      <div class="news-list">
-        <div class="news-item">
-          <div class="news-thumb">
-            <img
-              alt="MESII conference"
-              loading="lazy"
-              src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400"
-            />
-          </div>
-
-          <div class="news-content">
-            <h4>
-              <a
-                href="https://www.youtube.com/watch?si=DnQOorRMDdnA1wSJ&amp;fbclid=IwY2xjawOMW1FleHRuA2FlbQIxMQBzcnRjBmFwcF9pZBAyMjIwMzkxNzg4MjAwODkyAAEepml50AT-vcffUFWiSR56XAI9zgSlNfr43N7XeHdNv5pPeAthCOG9u7TYOpY_aem_KfBeC7MV4N6yk64Nq-_jpw&amp;v=ohNHT4XAoaQ&amp;feature=youtu.be"
-                >Ada Derana Mornings - TV Segment</a
-              >
-            </h4>
-
-            <p>
-              Highlighted the department's degree program, the upcoming Golden
-              Jubilee Celebration, and the National Forum.
-            </p>
-          </div>
-        </div>
-
-        <div class="news-item">
-          <div class="news-thumb">
-            <img
-              alt="National Forum"
-              loading="lazy"
-              src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400"
-            />
-          </div>
-
-          <div class="news-content">
-            <h4>
-              <a href="https://www.facebook.com/share/p/17PCiyEB6N/"
-                >National Forum - MSE</a
-              >
-            </h4>
-
-            <p>
-              A national gathering of experts, researchers, and industry leaders
-              exploring how materials science.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-2">
-        <a href="/materials/test-announcements">See all announcements</a>
-      </div>
-    </div>
+    <p>
+      To deepen your expertise, please contact us for more information on our
+      postgraduate programs.
+    </p>
+    <a href="/materials/test-contact-us" class="cta-button">Contact Us</a>
   </section>
 </main>

@@ -1,0 +1,2613 @@
+<script>
+  (function () {
+    const MOBILE_BREAKPOINT = 950; // px - change this to tune when hamburger appears
+
+    /* ---------- utility: create element with attrs ---------- */
+    function el(tag, attrs = {}, children = []) {
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === "style" && typeof v === "object") Object.assign(e.style, v);
+        else if (k.startsWith("on") && typeof v === "function") e[k] = v;
+        else if (k === "html") e.innerHTML = v;
+        else e.setAttribute(k, v);
+      }
+      (Array.isArray(children) ? children : [children]).forEach((ch) => {
+        if (!ch) return;
+        if (typeof ch === "string") e.appendChild(document.createTextNode(ch));
+        else e.appendChild(ch);
+      });
+      return e;
+    }
+
+    /* =============================
+     ORIGINAL PAGE CLEANUP + BODY BG
+     ============================= */
+    document.addEventListener("DOMContentLoaded", function () {
+      // Remove by ID
+      const idsToRemove = [
+        "banner",
+        "footer-top",
+        "footer",
+        "subfooter",
+        "block-scholarly-page-title",
+      ];
+      idsToRemove.forEach((id) => {
+        let elmt = document.getElementById(id);
+        if (elmt && elmt.parentNode) elmt.parentNode.removeChild(elmt);
+      });
+
+      // Remove by element (header tag)
+      document.querySelector("div.node--content > header")?.remove();
+
+      // Remove by class: split multi-class entry into separate class checks
+      const classesToRemove = [
+        "to-top",
+        "dialog-off-canvas-main-canvas",
+        "col-md-4",
+        "fix-sidebar-second",
+      ];
+      classesToRemove.forEach((className) => {
+        Array.from(document.getElementsByClassName(className)).forEach(
+          (elmt) => {
+            if (elmt && elmt.parentNode) elmt.parentNode.removeChild(elmt);
+          }
+        );
+      });
+
+      // Expand content section
+      document.querySelectorAll("section.col-md-8").forEach((section) => {
+        section.style.width = "100%";
+        section.style.boxSizing = "border-box";
+      });
+
+      // Make body a flex container for sticky footer and set a soft off-white background
+      Object.assign(document.body.style, {
+        margin: "0",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#fbfbfd" /* soft off-white for whole page */,
+      });
+    });
+
+    /* =============================
+     MENU DATA
+     ============================= */
+    const menuItems = {
+      People: ["Academic Staff", "Non-Academic Staff"],
+      Education: ["Undergraduate", "Postgraduate"],
+      Research: [
+        "Impact Areas",
+        "Facilities",
+        { Projects: ["Undergraduate", "Postgraduate"] },
+        { CMIPD: "https://cmipd.com" }, // Updated CMIPD to external link
+      ],
+      SOMES: [
+        {
+          Events: [
+            "MESII",
+            "MSE CricFiesta",
+            "MSE Careers Day",
+            "Dawasaka Hawasak",
+          ],
+        },
+        { "Social Activities": ["Hasarella"] },
+        "About",
+      ],
+      "News & Events": ["Announcements", "Events", "Calendar"],
+      Services: ["Consultancy"],
+      "Contact Us": null,
+    };
+
+    /* =============================
+     INJECT MOBILE STYLES
+     ============================= */
+    const mobileStyles = `
+  /* Mobile menu & hamburger styles injected by script */
+  .dmse-hamburger {
+    display: none;
+    width:44px;
+    height:44px;
+    border-radius:8px;
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.06);
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .dmse-hamburger .bar {
+    display:block;
+    width:20px;
+    height:2px;
+    background:#131139;
+    position:relative;
+  }
+  .dmse-hamburger .bar::before,
+  .dmse-hamburger .bar::after {
+    content:"";
+    position:absolute;
+    width:20px;
+    height:2px;
+    background:#131139;
+    left:0;
+  }
+  .dmse-hamburger .bar::before { top:-6px; }
+  .dmse-hamburger .bar::after { top:6px; }
+
+  /* mobile panel */
+  .dmse-mobile-panel {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 86%;
+    max-width: 380px;
+    height: 100vh;
+    background: #ffffff;
+    background: linear-gradient(180deg, #fff, #fbfbff);
+    box-shadow: -20px 0 40px rgba(19,17,57,0.12);
+    transition: right 320ms cubic-bezier(.2,.9,.2,1);
+    z-index: 2000;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .dmse-mobile-panel.open { right: 0; }
+
+  .dmse-mobile-close {
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:flex-end;
+    margin-bottom:8px;
+  }
+  .dmse-mobile-close button {
+    background:transparent;
+    border:0;
+    font-size:20px;
+    cursor:pointer;
+    color:#131139;
+  }
+
+  .dmse-mobile-menu { padding: 8px 0; }
+  .dmse-mobile-menu a {
+    display:block;
+    padding:10px 8px;
+    text-decoration:none;
+    color:#131139;
+    font-weight:600;
+    border-radius:6px;
+  }
+  .dmse-mobile-menu .mobile-dropdown {
+    border-top:1px dashed rgba(0,0,0,0.04);
+    margin-top:6px;
+    padding-top:6px;
+  }
+  .dmse-mobile-menu .mobile-parent {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    padding:10px 8px;
+  }
+  .dmse-accordion-content {
+    display:none;
+    padding-left:8px;
+    margin-bottom:8px;
+  }
+  .dmse-accordion-content.open { display:block; }
+
+  /* show hamburger only on small screens */
+  @media (max-width: ${MOBILE_BREAKPOINT}px) {
+    .dmse-hamburger { display:flex !important; }
+    header nav[aria-label="Primary"] { display:none !important; }
+  }
+  @media (min-width: ${MOBILE_BREAKPOINT + 1}px) {
+    .dmse-mobile-panel { display:none !important; }
+  }
+  `;
+    const styleTag = document.createElement("style");
+    styleTag.setAttribute("type", "text/css");
+    styleTag.appendChild(document.createTextNode(mobileStyles));
+    document.head.appendChild(styleTag);
+
+    /* =============================
+     NAVBAR CREATION (desktop + mobile controls)
+     ============================= */
+    function createNavBar(parent) {
+      // header
+      const header = document.createElement("header");
+      Object.assign(header.style, {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "16px 24px",
+        position: "sticky",
+        top: "0",
+        background: "rgba(251,251,253,0.98)",
+        borderBottom: "1px solid rgba(0,0,0,0.06)",
+        backdropFilter: "blur(6px)",
+        zIndex: "999",
+      });
+
+      // logo
+      const logoLink = document.createElement("a");
+      logoLink.href = "/materials/test";
+      const logo = document.createElement("img");
+      logo.src =
+        "https://uom.lk/sites/default/files/materials/images/materials-log1_0.png";
+      logo.alt = "Department of Material Science and Engineering";
+      Object.assign(logo.style, { width: "100px", cursor: "pointer" });
+      logoLink.appendChild(logo);
+
+      // desktop nav
+      const nav = document.createElement("nav");
+      nav.setAttribute("aria-label", "Primary");
+      Object.assign(nav.style, {
+        display: "flex",
+        gap: "20px",
+        fontSize: "16px",
+      });
+
+      // build desktop dropdowns helper
+      function buildDesktopDropdown(items) {
+        const dropdownContent = document.createElement("div");
+        Object.assign(dropdownContent.style, {
+          display: "none",
+          position: "absolute",
+          top: "100%",
+          left: "0",
+          background: "rgba(251,251,253,1)",
+          minWidth: "160px",
+          boxShadow: "0 6px 18px rgba(19,17,57,0.06)",
+          borderRadius: "6px",
+          zIndex: "1000",
+        });
+
+        items.forEach((item) => {
+          if (typeof item === "string") {
+            const a = document.createElement("a");
+            // default href generation for plain strings
+            a.href =
+              "/materials/test-" + item.toLowerCase().replace(/\s+/g, "-");
+            a.textContent = item;
+            Object.assign(a.style, {
+              display: "block",
+              padding: "10px 14px",
+              textDecoration: "none",
+              color: "#111",
+              fontSize: "15px",
+            });
+            a.onmouseover = () => (a.style.background = "rgba(239,83,55,0.06)");
+            a.onmouseout = () => (a.style.background = "transparent");
+            dropdownContent.appendChild(a);
+          } else if (typeof item === "object") {
+            const [nestedTitle, nestedItems] = Object.entries(item)[0];
+
+            // Check if this is an external link (CMIPD case)
+            if (
+              typeof nestedItems === "string" &&
+              nestedItems.startsWith("http")
+            ) {
+              const a = document.createElement("a");
+              a.href = nestedItems;
+              a.textContent = nestedTitle;
+              a.target = "_blank";
+              Object.assign(a.style, {
+                display: "block",
+                padding: "10px 14px",
+                textDecoration: "none",
+                color: "#111",
+                fontSize: "15px",
+              });
+              a.onmouseover = () =>
+                (a.style.background = "rgba(239,83,55,0.06)");
+              a.onmouseout = () => (a.style.background = "transparent");
+              dropdownContent.appendChild(a);
+              return;
+            }
+
+            const nestedWrapper = document.createElement("div");
+            Object.assign(nestedWrapper.style, { position: "relative" });
+
+            const nestedBtn = document.createElement("span");
+            nestedBtn.textContent = nestedTitle;
+            Object.assign(nestedBtn.style, {
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "12px",
+              padding: "10px 14px",
+              textDecoration: "none",
+              color: "#111",
+              fontSize: "15px",
+              cursor: "default",
+            });
+
+            const arrow = document.createElement("span");
+            arrow.textContent = "▸";
+            arrow.style.marginLeft = "auto";
+            nestedBtn.appendChild(arrow);
+
+            // Special-case: if this nested group is "Projects", create the links
+            // with the explicit routes required by the department.
+            let nestedContent;
+            if (String(nestedTitle).toLowerCase() === "projects") {
+              nestedContent = document.createElement("div");
+              Object.assign(nestedContent.style, {
+                display: "none",
+                position: "absolute",
+                top: "0",
+                left: "100%",
+                minWidth: "180px",
+                boxShadow: "0 6px 18px rgba(19,17,57,0.06)",
+                borderRadius: "6px",
+                background: "rgba(251,251,253,1)",
+              });
+
+              nestedItems.forEach((sub) => {
+                const a = document.createElement("a");
+                const name = String(sub).toLowerCase();
+                if (name.includes("undergrad")) {
+                  a.href = "/materials/test-projects-undergraduates";
+                } else if (
+                  name.includes("postgrad") ||
+                  name.includes("postgraduate")
+                ) {
+                  a.href = "/materials/test-projects-postgraduates";
+                } else {
+                  // fallback to the previous pattern
+                  a.href = "/materials/test-" + name.replace(/\s+/g, "-");
+                }
+                a.textContent = sub;
+                Object.assign(a.style, {
+                  display: "block",
+                  padding: "10px 14px",
+                  textDecoration: "none",
+                  color: "#111",
+                  fontSize: "15px",
+                });
+                a.onmouseover = () =>
+                  (a.style.background = "rgba(239,83,55,0.06)");
+                a.onmouseout = () => (a.style.background = "transparent");
+                nestedContent.appendChild(a);
+              });
+            } else {
+              // non-Projects nested groups: reuse recursive builder
+              nestedContent = buildDesktopDropdown(nestedItems);
+              Object.assign(nestedContent.style, {
+                top: "0",
+                left: "100%",
+                marginLeft: "0px",
+              });
+            }
+
+            nestedWrapper.appendChild(nestedBtn);
+            nestedWrapper.appendChild(nestedContent);
+
+            nestedWrapper.onmouseover = () =>
+              (nestedContent.style.display = "block");
+            nestedWrapper.onmouseout = () =>
+              (nestedContent.style.display = "none");
+
+            dropdownContent.appendChild(nestedWrapper);
+          }
+        });
+
+        return dropdownContent;
+      }
+      // <-- RESTORED: build desktop menu from menuItems -->
+      for (const [menu, subItems] of Object.entries(menuItems)) {
+        if (!subItems) {
+          const a = document.createElement("a");
+          if (menu === "Contact Us") a.href = "/materials/test-contact-us";
+          else a.href = "#" + menu.toLowerCase().replace(/\s+/g, "-");
+          a.textContent = menu;
+          Object.assign(a.style, {
+            textDecoration: "none",
+            color: "#111",
+            fontSize: "16px",
+            fontWeight: "500",
+            padding: "6px 8px",
+            display: "inline-block",
+          });
+          nav.appendChild(a);
+          continue;
+        }
+
+        const dropdown = document.createElement("div");
+        Object.assign(dropdown.style, { position: "relative" });
+
+        const button = document.createElement("span");
+        button.textContent = menu;
+        Object.assign(button.style, {
+          textDecoration: "none",
+          color: "#111",
+          fontSize: "16px",
+          fontWeight: "500",
+          padding: "6px 8px",
+          display: "inline-block",
+          cursor: "default",
+        });
+
+        const dropdownContent = buildDesktopDropdown(subItems);
+
+        dropdown.appendChild(button);
+        dropdown.appendChild(dropdownContent);
+
+        // hover behavior for desktop
+        dropdown.onmouseover = () => (dropdownContent.style.display = "block");
+        dropdown.onmouseout = () => (dropdownContent.style.display = "none");
+
+        nav.appendChild(dropdown);
+      }
+
+      // MOBILE: hamburger button
+      const hamburger = el(
+        "button",
+        {
+          class: "dmse-hamburger",
+          "aria-label": "Open menu",
+          "aria-expanded": "false",
+          type: "button",
+          style: {
+            display: "none",
+            background: "transparent",
+            border: "1px solid rgba(0,0,0,0.06)",
+          },
+        },
+        [el("span", { class: "bar" })]
+      );
+
+      // MOBILE PANEL (hidden by default)
+      const mobilePanel = el("nav", {
+        class: "dmse-mobile-panel",
+        "aria-hidden": "true",
+      });
+
+      // mobile panel close row
+      const closeRow = el("div", { class: "dmse-mobile-close" }, [
+        el("div", {}, []),
+        el("div", {}, [
+          el(
+            "button",
+            {
+              "aria-label": "Close menu",
+              type: "button",
+              onclick: () => closeMobile(),
+            },
+            "✕"
+          ),
+        ]),
+      ]);
+
+      mobilePanel.appendChild(closeRow);
+
+      // Build mobile menu content (accordion-style)
+      const mobileMenu = el("div", { class: "dmse-mobile-menu" });
+
+      function buildMobileSection(title, items) {
+        if (!items) {
+          // simple link
+          const link = el(
+            "a",
+            {
+              href:
+                "/materials/test-" + title.toLowerCase().replace(/\s+/g, "-"),
+              class: "mobile-link",
+            },
+            title
+          );
+          return link;
+        }
+
+        const wrapper = el("div", { class: "mobile-dropdown" });
+        const parentRow = el(
+          "div",
+          { class: "mobile-parent", role: "button", tabindex: "0" },
+          [el("span", {}, title), el("span", {}, "▾")]
+        );
+
+        const content = el("div", { class: "dmse-accordion-content" });
+
+        items.forEach((item) => {
+          if (typeof item === "string") {
+            const a = el(
+              "a",
+              {
+                href:
+                  "/materials/test-" + item.toLowerCase().replace(/\s+/g, "-"),
+              },
+              item
+            );
+            content.appendChild(a);
+          } else if (typeof item === "object") {
+            const [nestedTitle, nestedItems] = Object.entries(item)[0];
+
+            // Check if this is an external link (CMIPD case)
+            if (
+              typeof nestedItems === "string" &&
+              nestedItems.startsWith("http")
+            ) {
+              const a = el(
+                "a",
+                { href: nestedItems, target: "_blank" },
+                nestedTitle
+              );
+              content.appendChild(a);
+              return;
+            }
+
+            const nestedParent = el(
+              "div",
+              { class: "mobile-parent", role: "button", tabindex: "0" },
+              [el("span", {}, nestedTitle), el("span", {}, "▾")]
+            );
+            const nestedContent = el("div", {
+              class: "dmse-accordion-content",
+            });
+
+            nestedItems.forEach((sub) => {
+              const subText = String(sub);
+              const lower = subText.toLowerCase();
+              let href;
+              // special mapping for Projects -> undergrad/postgrad routes
+              if (String(nestedTitle).toLowerCase() === "projects") {
+                if (lower.includes("undergrad"))
+                  href = "/materials/test-projects-undergraduates";
+                else if (
+                  lower.includes("postgrad") ||
+                  lower.includes("postgraduate")
+                )
+                  href = "/materials/test-projects-postgraduates";
+                else href = "/materials/test-" + lower.replace(/\s+/g, "-");
+              } else {
+                href = "/materials/test-" + lower.replace(/\s+/g, "-");
+              }
+              const a = el("a", { href: href }, subText);
+              nestedContent.appendChild(a);
+            });
+
+            // click toggles
+            nestedParent.addEventListener("click", () => {
+              nestedContent.classList.toggle("open");
+            });
+            nestedParent.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") nestedParent.click();
+            });
+            content.appendChild(nestedParent);
+            content.appendChild(nestedContent);
+          }
+        });
+
+        // attach toggle for parentRow
+        parentRow.addEventListener("click", () => {
+          content.classList.toggle("open");
+        });
+        parentRow.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") parentRow.click();
+        });
+
+        wrapper.appendChild(parentRow);
+        wrapper.appendChild(content);
+        return wrapper;
+      }
+
+      // Build mobile menu: SKIP adding "Contact Us" here to avoid duplicate (bottom CTA kept)
+      for (const [menu, subItems] of Object.entries(menuItems)) {
+        if (menu === "Contact Us") continue; // <-- prevents duplicate contact inside accordion
+        const node = buildMobileSection(menu, subItems);
+        mobileMenu.appendChild(node);
+      }
+
+      // append a small contact link at bottom (kept)
+      const contactCTA = el(
+        "div",
+        {
+          style: {
+            marginTop: "12px",
+            paddingTop: "12px",
+            borderTop: "1px solid rgba(0,0,0,0.04)",
+          },
+        },
+        [
+          el(
+            "a",
+            {
+              href: "/materials/test-contact-us",
+              style: {
+                display: "inline-block",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                background: "rgba(19,17,57,0.04)",
+                fontWeight: "700",
+                textDecoration: "none",
+                color: "#131139",
+              },
+            },
+            "Contact us"
+          ),
+        ]
+      );
+      mobilePanel.appendChild(mobileMenu);
+      mobilePanel.appendChild(contactCTA);
+
+      // add all to header
+      header.appendChild(logoLink);
+      header.appendChild(nav);
+      header.appendChild(hamburger);
+
+      // append header and mobile panel to parent (body)
+      parent.insertBefore(header, parent.firstChild);
+      document.body.appendChild(mobilePanel);
+
+      // mobile open/close handlers
+      function openMobile() {
+        mobilePanel.classList.add("open");
+        mobilePanel.setAttribute("aria-hidden", "false");
+        hamburger.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+      }
+      function closeMobile() {
+        mobilePanel.classList.remove("open");
+        mobilePanel.setAttribute("aria-hidden", "true");
+        hamburger.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+      }
+
+      // toggle by hamburger
+      hamburger.addEventListener("click", () => {
+        if (mobilePanel.classList.contains("open")) closeMobile();
+        else openMobile();
+      });
+
+      // close when clicking outside panel
+      document.addEventListener("click", (e) => {
+        if (!mobilePanel.classList.contains("open")) return;
+        const isInside =
+          mobilePanel.contains(e.target) || header.contains(e.target);
+        if (!isInside) closeMobile();
+      });
+
+      // ESC to close
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && mobilePanel.classList.contains("open"))
+          closeMobile();
+      });
+
+      // responsive toggling on resize
+      function applyResponsiveVisibility() {
+        const isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
+        if (isMobile) {
+          nav.style.display = "none";
+          hamburger.style.display = "flex";
+        } else {
+          nav.style.display = "flex";
+          hamburger.style.display = "none";
+          // ensure mobile panel closed
+          closeMobile();
+        }
+      }
+      applyResponsiveVisibility();
+      window.addEventListener("resize", applyResponsiveVisibility);
+    }
+
+    /* =============================
+     Minimal footer
+     ============================= */
+    function createFooter(parent) {
+      const existingFooter = document.querySelector(
+        'footer[data-dmse-minimal="true"]'
+      );
+      if (existingFooter) return; // avoid double-append
+
+      const footer = document.createElement("footer");
+      footer.setAttribute("data-dmse-minimal", "true");
+      Object.assign(footer.style, {
+        background: "#f7f7fb",
+        padding: "16px 20px",
+        textAlign: "center",
+        fontSize: "16px",
+        color: "#3b3b4a",
+        borderTop: "1px solid rgba(0,0,0,0.04)",
+        marginTop: "auto",
+      });
+
+      const year = new Date().getFullYear();
+      footer.innerHTML = `
+      <div style="max-width:1100px; margin:0 auto;">
+        <small style="color:#3b3b4a;">
+          &copy; ${year} DMSE - University of Moratuwa
+        </small>
+      </div>
+    `;
+      parent.appendChild(footer);
+    }
+
+    /* =============================
+     ROUTING FIX: rewrite anchors inside #main-content
+     ============================= */
+    function rewriteMainAnchors() {
+      const main = document.getElementById("main-content");
+      if (!main) return;
+      const anchors = Array.from(main.querySelectorAll("a"));
+      anchors.forEach((a) => {
+        try {
+          const href = (a.getAttribute("href") || "").trim();
+          if (href.startsWith("#")) {
+            const slug = href
+              .slice(1)
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^\w\-]/g, "");
+            if (slug.length > 0)
+              a.setAttribute("href", "/materials/test-" + slug);
+          } else if (!href || href === "#" || href === "javascript:void(0)") {
+            const txt = (a.textContent || "").trim();
+            if (txt.length > 0 && txt.length < 50) {
+              const slug = txt
+                .toLowerCase()
+                .replace(/\s+/g, "-")
+                .replace(/[^\w\-]/g, "");
+              if (slug.length > 0)
+                a.setAttribute("href", "/materials/test-" + slug);
+            }
+          }
+        } catch (e) {
+          console.warn("link rewrite error", e);
+        }
+      });
+    }
+
+    /* Initialize once DOM is ready */
+    document.addEventListener("DOMContentLoaded", function () {
+      createNavBar(document.body);
+      createFooter(document.body);
+      rewriteMainAnchors();
+    });
+  })();
+</script>
+<style type="text/css">
+  :root {
+    --brand: #131139;
+    --accent: #e34234;
+    --accent-light: rgba(227, 66, 52, 0.08);
+    --muted: #6f6f83;
+    --muted-light: rgba(111, 111, 131, 0.1);
+    --bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --container: min(1200px, 95vw);
+    --flow-gap: 16px;
+    --base-fs: 16px;
+    --h1: clamp(2.5rem, 6vw, 3.5rem);
+    --h2: clamp(1.75rem, 4.5vw, 2.5rem);
+    --h3: clamp(1.35rem, 3.5vw, 1.75rem);
+    --h4: clamp(1.15rem, 2.5vw, 1.35rem);
+    --lead: clamp(1rem, 2.2vw, 1.25rem);
+    --body: clamp(0.95rem, 2vw, 1.05rem);
+    --small: clamp(0.85rem, 1.5vw, 0.9rem);
+    --shadow-1: 0 8px 24px rgba(19, 17, 57, 0.08);
+    --shadow-2: 0 15px 35px rgba(0, 0, 0, 0.1);
+    --shadow-3: 0 20px 45px rgba(0, 0, 0, 0.15);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --gradient-1: linear-gradient(135deg, var(--accent) 0%, #ff6b5a 100%);
+    --gradient-2: linear-gradient(135deg, var(--brand) 0%, #2a2660 100%);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    font-size: var(--base-fs);
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif !important;
+    color: var(--brand);
+    background: var(--bg);
+    background-image: radial-gradient(
+        circle at 20% 50%,
+        rgba(227, 66, 52, 0.03) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 80%,
+        rgba(19, 17, 57, 0.03) 0%,
+        transparent 50%
+      );
+    background-attachment: fixed;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ===========================
+       TYPOGRAPHY
+       =========================== */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+    color: var(--brand);
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    font-size: var(--h1);
+    background: var(--gradient-2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  h2 {
+    font-size: var(--h2);
+    margin-top: 3rem;
+    position: relative;
+    padding-bottom: 1rem;
+  }
+  h2::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: var(--gradient-1);
+    border-radius: 2px;
+  }
+  h3 {
+    font-size: var(--h3);
+  }
+  h4 {
+    font-size: var(--h4);
+  }
+
+  p,
+  li {
+    font-size: var(--body);
+    color: var(--muted);
+    margin-bottom: 1rem;
+    line-height: 1.8;
+  }
+
+  .lead {
+    font-size: var(--lead);
+    font-weight: 500;
+    color: var(--brand);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  small,
+  .small {
+    font-size: var(--small);
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+  }
+
+  a:hover,
+  a:focus {
+    color: var(--brand);
+  }
+
+  /* ===========================
+       LAYOUT & CONTAINERS
+       =========================== */
+  .container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container-full {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .section {
+    padding: 4rem 2rem;
+    width: 100%;
+  }
+
+  /* ===========================
+       HEADER & NAVIGATION
+       =========================== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2rem;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    margin: 0 !important;
+  }
+
+  .logo {
+    width: 120px;
+    height: auto;
+    transition: var(--transition);
+  }
+
+  .logo:hover {
+    transform: scale(1.05);
+  }
+
+  /* ===========================
+       PAGE HERO SECTION
+       =========================== */
+  .page-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    width: 100%;
+    position: relative;
+    background: linear-gradient(180deg, #0a0a1f 0%, #1a1a3e 50%, #2a2a5e 100%);
+    overflow: hidden;
+    margin: 0 !important;
+  }
+
+  .page-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+        circle at 20% 30%,
+        rgba(227, 66, 52, 0.15) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 80% 70%,
+        rgba(100, 100, 255, 0.1) 0%,
+        transparent 40%
+      );
+    z-index: 0;
+  }
+
+  .page-hero-content {
+    max-width: 1000px;
+    animation: fadeInUp 0.8s ease-out;
+    position: relative;
+    z-index: 2;
+  }
+
+  .page-hero h1 {
+    color: white;
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 1rem;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+  }
+
+  .page-hero .lead {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    margin-bottom: 0;
+    font-weight: 400;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .kicker {
+    display: inline-block;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    background: transparent;
+    letter-spacing: 0.15rem;
+    font-weight: 600;
+    font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+    padding: 0;
+    border-radius: 0;
+    margin-bottom: 1rem;
+    box-shadow: none;
+    border-bottom: 2px solid rgba(227, 66, 52, 0.5);
+    padding-bottom: 0.5rem;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ===========================
+       STAFF SECTION
+       =========================== */
+  .staff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    padding: auto;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .staff-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-1);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    position: relative;
+  }
+
+  .staff-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--gradient-1);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
+
+  /* Mobile: No animations */
+  @media (max-width: 599px) {
+    .staff-card:hover {
+      transform: none;
+      box-shadow: var(--shadow-1);
+    }
+
+    .staff-card:hover::before {
+      transform: scaleY(0);
+    }
+
+    .staff-card:hover .staff-photo {
+      transform: none;
+    }
+
+    .staff-card:hover .staff-info h3 {
+      color: var(--brand);
+    }
+  }
+
+  /* Tablet and above: Enable animations */
+  @media (min-width: 600px) {
+    .staff-card:hover {
+      transform: translateX(8px);
+      box-shadow: var(--shadow-2);
+    }
+
+    .staff-card:hover::before {
+      transform: scaleY(1);
+    }
+
+    .staff-card:hover .staff-photo {
+      transform: scale(1.05);
+    }
+
+    .staff-card:hover .staff-info h3 {
+      color: var(--accent);
+    }
+  }
+
+  .staff-photo-wrapper {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .staff-photo {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+    transition: var(--transition);
+    display: block;
+  }
+
+  .staff-info {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .staff-info h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    transition: var(--transition);
+    color: var(--brand);
+  }
+
+  .staff-info h3 a {
+    color: var(--brand);
+    text-decoration: none;
+  }
+
+  .staff-position {
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .staff-role-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    background: var(--accent);
+    color: white;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+
+  .staff-extra-roles {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .staff-research-interests {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+    padding: 1rem;
+    background: linear-gradient(
+      135deg,
+      rgba(227, 66, 52, 0.08) 0%,
+      rgba(227, 66, 52, 0.04) 100%
+    );
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+  }
+
+  .staff-research-interests strong {
+    color: var(--brand);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .staff-research-interests ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style-type: disc;
+  }
+
+  .staff-research-interests li {
+    margin-bottom: 0.4rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .staff-contact {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 2px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+  }
+
+  .staff-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .staff-contact-item svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+    flex-shrink: 0;
+    stroke: var(--accent);
+  }
+
+  .staff-contact a {
+    color: var(--accent);
+    font-weight: 600;
+    border-bottom: none;
+  }
+
+  .staff-contact a:hover {
+    color: var(--brand);
+  }
+
+  /* Tablet+ horizontal card layout */
+  @media (min-width: 600px) {
+    .staff-card {
+      flex-direction: row;
+      gap: 0;
+    }
+
+    .staff-photo-wrapper {
+      width: 200px;
+      height: auto;
+      min-height: 280px;
+      flex-shrink: 0;
+      padding: 1.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .staff-photo {
+      width: 100%;
+      height: auto;
+      min-height: auto;
+      object-fit: contain;
+      padding: 0;
+      margin: 0;
+    }
+
+    .staff-info {
+      padding: 2rem 2rem;
+      flex: 1;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .staff-card {
+      flex-direction: row;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .staff-photo-wrapper {
+      width: 300px;
+      height: auto;
+      min-height: 100%;
+      flex-shrink: 0;
+      padding: 2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .staff-photo {
+      width: 100%;
+      height: auto;
+      min-height: auto;
+      object-fit: contain;
+      padding: 0;
+    }
+
+    .staff-info {
+      display: grid;
+      grid-template-columns: 0.7fr 1.3fr;
+      grid-gap: 1.5rem;
+      padding: 1.75rem 1.75rem 1.75rem 1.5rem;
+      flex: 1;
+      align-content: start;
+      align-self: center;
+    }
+
+    /* Left column - Name and details (expanded) */
+    .staff-info h3 {
+      grid-column: 1;
+      grid-row: 1;
+      margin-bottom: 0;
+      font-size: 1.35rem;
+    }
+
+    .staff-position {
+      grid-column: 1;
+      grid-row: 2;
+      margin-bottom: 0;
+      margin-top: 0.3rem;
+      font-size: 0.95rem;
+    }
+
+    .staff-role-badge {
+      grid-column: 1;
+      grid-row: 3;
+      margin-bottom: 0.5rem;
+      margin-top: 0.3rem;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.75rem;
+    }
+
+    .staff-extra-roles {
+      grid-column: 1;
+      grid-row: 4;
+      margin-bottom: 0.6rem;
+      margin-top: 0;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .staff-contact {
+      grid-column: 1;
+      grid-row: 5;
+      flex-direction: column;
+      gap: 0.35rem 0;
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+      padding-left: 0;
+    }
+
+    .staff-contact-item {
+      font-size: 0.85rem;
+    }
+
+    /* Right column - Research interests (reduced width, increased fonts) */
+    .staff-research-interests {
+      grid-column: 2;
+      grid-row: 1 / 6;
+      margin-bottom: 0;
+      align-self: center;
+      padding: 1.25rem;
+      font-size: 0.85rem;
+    }
+
+    .staff-research-interests strong {
+      font-size: 0.9rem;
+    }
+
+    .staff-research-interests li {
+      font-size: 0.85rem;
+    }
+  }
+
+  /* ===========================
+       FOOTER
+       =========================== */
+  footer[data-dmse-minimal="true"] {
+    background: linear-gradient(135deg, #131139 0%, #1a1850 100%);
+    padding: 3rem 1rem 2rem;
+    text-align: center;
+    font-size: var(--small);
+    color: rgba(255, 255, 255, 0.8);
+    border-top: 3px solid var(--accent);
+    margin-top: auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  footer[data-dmse-minimal="true"] p {
+    position: relative;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* ===========================
+       UTILITY CLASSES
+       =========================== */
+  .text-center {
+    text-align: center;
+  }
+  .mt-1 {
+    margin-top: 1rem;
+  }
+  .mt-2 {
+    margin-top: 2rem;
+  }
+  .mb-1 {
+    margin-bottom: 1rem;
+  }
+  .mb-2 {
+    margin-bottom: 2rem;
+  }
+
+  /* ===========================
+       ACCESSIBILITY
+       =========================== */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  a:focus,
+  button:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ===========================
+       MEDIA QUERIES
+       =========================== */
+  @media (min-width: 768px) {
+    .section {
+      padding: 5rem 3rem;
+    }
+
+    .page-hero {
+      padding: 5rem 3rem;
+    }
+  }
+</style>
+<main>
+  <!-- PAGE HERO SECTION -->
+  <section class="page-hero" id="academic-staff">
+    <div class="page-hero-content">
+      <span class="kicker">Our People</span>
+      <h1>Academic Staff</h1>
+
+      <p class="lead">
+        Meet our distinguished faculty members who bring expertise, innovation,
+        and dedication to materials science and engineering education and
+        research.
+      </p>
+    </div>
+  </section>
+  <!-- ACADEMIC STAFF LIST -->
+
+  <section class="section" id="staff-list">
+    <div class="container">
+      <div class="staff-list">
+        <!-- Prof. G. I. P. De Silva -->
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Prof. G. I. P. De Silva"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/12_2.jpg"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staffs/dr-g-i-p-de-silva"
+                >Prof. G. I. P. De Silva</a
+              >
+            </h3>
+            <span class="staff-role-badge">Head of Department</span>
+
+            <p class="staff-position">Professor</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Ferrous and Non-Ferrous Metals and Alloys</li>
+                <li>Superconductor Materials and their Applications</li>
+                <li>Industrial Metallurgy</li>
+                <li>Selection of Materials for Engineering Applications</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5101
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:indikagip@uom.lk">indikagip@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Prof. S.U. Adikary -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Prof. S.U. Adikary"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/10_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staffs/dr-su-adikary"
+                >Prof. S.U. Adikary</a
+              >
+            </h3>
+
+            <p class="staff-position">Professor</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Biomaterials - Smart Piezoelectric Fibula Scaffold</li>
+                <li>Bio-degradable Scaffolds</li>
+                <li>Hydroxyapatite Nano Particles</li>
+                <li>Smart materials - Piezoelectric Nano Generators</li>
+                <li>Piezoelectric Devices</li>
+                <li>Smart Structures</li>
+                <li>
+                  Ceramic Structures - Numerical Modelling of Drying & Sintering
+                  Behavior of Ceramic Bodies
+                </li>
+                <li>Synthesize and Characterizations of Ceramic Structures</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5117
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:suadi@uom.lk">suadi@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112650465">+94 11 265 0465</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Prof.(Mrs) G.A. Sewvandi -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Prof.(Mrs) G.A. Sewvandi"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/8_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff1/dr-mrs-ga-sewwandi"
+                >Prof.(Mrs) G.A. Sewvandi</a
+              >
+            </h3>
+
+            <p class="staff-position">Professor</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Energy-harvesting materials</li>
+                <li>Functional materials</li>
+                <li>Nanomaterials</li>
+                <li>Computational materials</li>
+                <li>Materials Informatics</li>
+                <li>
+                  The application of machine learning in materials science
+                </li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5120
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:galhenagea@uom.lk">galhenagea@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Mr. V. Sivahar -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Mr. V. Sivahar"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/5_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staffs/mr-v-sivahar">Mr. V. Sivahar</a>
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade I</p>
+
+            <p class="staff-extra-roles">
+              Student Counsellor · Director/Quality Assurance · Chairman/IQAU
+            </p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Non destructive testing</li>
+                <li>Composites</li>
+                <li>Corrosion</li>
+                <li>Metallurgy</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5135
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:vsivahar@uom.lk">vsivahar@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112650465">+94 11 265 0465</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Mr. S.P. Guluwita -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Mr. S.P. Guluwita"
+              class="staff-photo"
+              loading="lazy"
+              src="https://lms.uom.lk/staff_web/20436.jpg"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff1/mr-sp-guluwita"
+                >Mr. S.P. Guluwita</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade I</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Industrial Metallurgy</li>
+                <li>Extraction Metallurgy</li>
+                <li>Construction Materials</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5110
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:sguluwita@uom.lk">sguluwita@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Dr. D. Attygalle -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Dr. D. Attygalle"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/6_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Attygalle.D">Dr. D. Attygalle</a>
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade I</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Solar Cells</li>
+                <li>Sensors</li>
+                <li>Semiconductors</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5127
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:dattyga@uom.lk">dattyga@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Dr. (Mrs) H.S. Sitinamaluwa -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Dr. (Mrs) H.S. Sitinamaluwa"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/7_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Sitinamaluwa.HS"
+                >Dr. (Mrs) H.S. Sitinamaluwa</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade I</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Graphene based Materials</li>
+                <li>Li-ion batteries</li>
+                <li>Supercapacitors</li>
+                <li>Nanomaterials for advanced functional devices</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5118
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:hansinees@uom.lk">hansinees@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Mr. V.S.C. Weragoda -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Mr. V.S.C. Weragoda"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/2_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Weragoda.VSC"
+                >Mr. V.S.C. Weragoda</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade II</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Polymer Engineering and Polymeric sensors</li>
+                <li>Materials Testing</li>
+                <li>Failure analysis</li>
+                <li>Rubber and plastic product design</li>
+                <li>Mechanical Behavior of Materials</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5123
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:sampathw@uom.lk">sampathw@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Dr. A.M.P.B. Samarasekara -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Dr. A.M.P.B. Samarasekara"
+              class="staff-photo"
+              loading="lazy"
+              src="https://lms.uom.lk/staff_web/2391.jpg"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Samarasekara.AMPB"
+                >Dr. A.M.P.B. Samarasekara</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade II</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Plastic and Rubber Engineering</li>
+                <li>Biodegradable Polymers</li>
+                <li>Polymer nanocomposites</li>
+                <li>Polymer degradation</li>
+                <li>Polymer testing</li>
+                <li>Synthesis and modification of natural polymers</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5124
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:bandu@uom.lk">bandu@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Dr. D.A.S. Amarasinghe -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Dr. D.A.S. Amarasinghe"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/4_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Amarasinghe.DAS"
+                >Dr. D.A.S. Amarasinghe</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade II</p>
+
+            <p class="staff-extra-roles">Student Counsellor</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>
+                  Design and fabrication of nano-systems and nanostructured
+                  materials that have industrial applications
+                </li>
+                <li>Refractive index pattering & photonics</li>
+                <li>
+                  Development of sensors and quality control equipments for
+                  industrial use
+                </li>
+                <li>Materials Characterizaion by EXAFS</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5128
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:amarasinghes@uom.lk">amarasinghes@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Mr. S.V. Udayakumara -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Mr. S.V. Udayakumara"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/9_2.jpg"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Udayakumara.SV"
+                >Mr. S.V. Udayakumara</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade II</p>
+
+            <p class="staff-extra-roles">
+              QA Coordinator – Department of Material Science &amp; Engineering
+            </p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>
+                  Extraction of natural dyes and adhesives from local resources
+                </li>
+                <li>
+                  Development of bio-based natural coatings for sustainable
+                  applications
+                </li>
+                <li>
+                  Design and fabrication of composites using waste natural
+                  materials
+                </li>
+                <li>Utilization of natural fibers in composite development</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5119
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:udayakumara@uom.lk">udayakumara@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Dr. A.A.G.A. Abeygunawardane -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Dr. A.A.G.A. Abeygunawardane"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/1_2.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff/Abeygunawardane.AAGA"
+                >Dr. A.A.G.A. Abeygunawardane</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade II</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Smart and multifunctional materials</li>
+                <li>Bio-mechanics and bio-materials</li>
+                <li>Computational mechanics and simulations</li>
+                <li>Mechanics of advanced materials</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5111
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:aravindag@uom.lk">aravindag@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+        <!-- Dr.(Ms.) S.A.K.V.M. Piyathilake -->
+
+        <article class="staff-card">
+          <div class="staff-photo-wrapper">
+            <img
+              alt="Dr.(Ms.) S.A.K.V.M. Piyathilake"
+              class="staff-photo"
+              loading="lazy"
+              src="https://uom.lk/sites/default/files/materials/images/13_1.png"
+            />
+          </div>
+
+          <div class="staff-info">
+            <h3>
+              <a href="https://uom.lk/staff1/mrs-sakvm-piyathilake"
+                >Dr.(Ms.) S.A.K.V.M. Piyathilake</a
+              >
+            </h3>
+
+            <p class="staff-position">Senior Lecturer Grade II</p>
+
+            <div class="staff-research-interests">
+              <strong>Research Interests:</strong>
+              <ul>
+                <li>Polymer science and engineering</li>
+                <li>Nano-scale X-ray based material characterization</li>
+                <li>Flexible polymers</li>
+                <li>Degradation of Materials</li>
+              </ul>
+            </div>
+
+            <div class="staff-contact">
+              <span class="staff-contact-item"
+                ><svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                Ext: 5125
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="mailto:miyurup@uom.lk">miyurup@uom.lk</a>
+              </span>
+              <span class="staff-contact-item">
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  viewbox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  ></path>
+                </svg>
+                <a href="tel:+94112640440">+94 11 264 0440</a>
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
